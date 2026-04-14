@@ -87,7 +87,8 @@ async def cli(command: str) -> str:
     Note: If execution takes 1 second or longer, elapsed time is appended to the output. `[Elapsed: 3.xx s]`
 
     Args:
-        command: RouterOS CLI command to execute (e.g. "/system/identity/print", "/ip/address/print")
+        command: RouterOS CLI command to execute (e.g. "/system/identity/print terse", "/ip/address/print")
+            Always append `terse` to print commands to avoid empty output (e.g. "/interface/print terse")
     """
     command = escape_non_ascii(command)
 
