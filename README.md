@@ -13,12 +13,6 @@ Single tool: `cli` — send any RouterOS CLI command and get the text output bac
 | `MIKROTIK_PASSWORD` | Yes | — | SSH password |
 | `MIKROTIK_PORT` | No | `22` | SSH port |
 
-## Docker
-
-```bash
-docker build -t mikrotik-cli-mcp .
-```
-
 ## Usage with Claude Desktop / VS Code
 
 Add to your MCP configuration:
@@ -32,14 +26,22 @@ Add to your MCP configuration:
         "-e", "MIKROTIK_HOST=10.1.25.40",
         "-e", "MIKROTIK_USER=admin",
         "-e", "MIKROTIK_PASSWORD=yourpassword",
-        "mikrotik-cli-mcp"
+        "kamilake/mikrotik-cli-mcp"
       ]
     }
   }
 }
 ```
 
-## Usage without Docker
+## Build from Source
+
+### Docker
+
+```bash
+docker build -t mikrotik-cli-mcp .
+```
+
+### Without Docker
 
 ```bash
 uv run server.py
