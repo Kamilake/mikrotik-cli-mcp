@@ -7,6 +7,18 @@ from mcp.server.fastmcp import FastMCP
 mcp = FastMCP("mikrotik-cli")
 
 
+def escape_non_ascii(text: str) -> str:
+    """Convert non-ASCII characters to RouterOS hex escape format (\\XX)."""
+    result = []
+    for char in text:
+        if ord(char) > 127:
+            for byte in char.encode("utf-8"):
+                result.append(f"\\{byte:02X}")
+        else:
+            result.append(char)
+    return "".join(result)
+
+
 def get_config():
     host = os.environ.get("MIKROTIK_HOST")
     user = os.environ.get("MIKROTIK_USER")
@@ -34,6 +46,7 @@ async def cli(command: str) -> str:
         command: RouterOS CLI command to execute (e.g. "/system/identity/print", "/ip/address/print")
     """
     host, port, user, password = get_config()
+    command = escape_non_ascii(command)
 
     try:
         async with asyncssh.connect(
