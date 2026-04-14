@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 
 import asyncssh
 from mcp.server.fastmcp import FastMCP
@@ -42,12 +43,15 @@ def get_config():
 async def cli(command: str) -> str:
     """Send a CLI command to MikroTik RouterOS via SSH and return the output.
 
+    Note: If execution takes 1 second or longer, elapsed time is appended to the output. `[Elapsed: 3.xx s]`
+
     Args:
         command: RouterOS CLI command to execute (e.g. "/system/identity/print", "/ip/address/print")
     """
     host, port, user, password = get_config()
     command = escape_non_ascii(command)
 
+    start = time.perf_counter()
     try:
         async with asyncssh.connect(
             host,
@@ -60,13 +64,16 @@ async def cli(command: str) -> str:
             stdout = result.stdout or ""
             stderr = result.stderr or ""
 
-            if stderr:
-                return f"{stdout}\n[stderr]\n{stderr}".strip()
-            return stdout.strip()
+            output = f"{stdout}\n[stderr]\n{stderr}".strip() if stderr else stdout.strip()
     except asyncssh.Error as e:
-        return f"SSH error: {e}"
+        output = f"SSH error: {e}"
     except OSError as e:
-        return f"Connection error: {e}"
+        output = f"Connection error: {e}"
+
+    elapsed = time.perf_counter() - start
+    if elapsed >= 1.0:
+        output += f"\n\n[Elapsed: {elapsed:.2f}s]"
+    return output
 
 
 if __name__ == "__main__":
